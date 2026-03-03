@@ -13,6 +13,17 @@
     <sys:String x:Key="MenuExportCsv">Export CSV</sys:String>
     <sys:String x:Key="MenuExportSummary">Export Summary (MD)</sys:String>
     <sys:String x:Key="MenuExportJsonl">Export JSONL</sys:String>
+    <sys:String x:Key="ExportSaveDialogTitle">Export</sys:String>
+    <sys:String x:Key="ExportSaveFilterJsonl">JSONL (Raw Events)</sys:String>
+    <sys:String x:Key="ExportSaveFilterJson">JSON (Analysis)</sys:String>
+    <sys:String x:Key="ExportDefaultJsonlNameFormat">events_{0}</sys:String>
+    <sys:String x:Key="ExportNoEventsError">ERROR: No collected events to export. Run Collect first.</sys:String>
+    <sys:String x:Key="ExportJsonlWritingFormat">Writing {0}: {1}</sys:String>
+    <sys:String x:Key="ExportJsonlWroteFormat">Wrote {0}: {1} lines</sys:String>
+    <sys:String x:Key="ExportJsonlFailedFormat">ERROR: Failed to write {0}: {1}</sys:String>
+    <sys:String x:Key="ExportJsonWritingFormat">Writing {0}: {1}</sys:String>
+    <sys:String x:Key="ExportJsonWroteFormat">Wrote {0}</sys:String>
+    <sys:String x:Key="ExportJsonFailedFormat">ERROR: Failed to write {0}: {1}</sys:String>
     <sys:String x:Key="MenuTools">_Tools</sys:String>
     <sys:String x:Key="MenuOpenSettings">Settings</sys:String>
     <sys:String x:Key="SettingsWindowTitle">Settings</sys:String>
@@ -30,6 +41,7 @@
     <sys:String x:Key="SettingsHourlyBarColor">Hourly bar color</sys:String>
     <sys:String x:Key="SettingsHourlyPeakColor">Hourly peak color</sys:String>
     <sys:String x:Key="SettingsHourlyLabelColor">Hourly label text color</sys:String>
+    <sys:String x:Key="SettingsOutputListSelectionColor">Output file selection color</sys:String>
     <sys:String x:Key="SettingsColorOptionHeader">Header color</sys:String>
     <sys:String x:Key="SettingsColorOptionSelection">Selection color</sys:String>
     <sys:String x:Key="SettingsColorOptionPanel">Panel color</sys:String>
@@ -42,6 +54,7 @@
     <sys:String x:Key="SettingsPaletteClone">Clone</sys:String>
     <sys:String x:Key="SettingsPaletteDelete">Delete</sys:String>
     <sys:String x:Key="SettingsGraphSavePending">Pending save...</sys:String>
+    <sys:String x:Key="SettingsSaveGraphConfig">Save</sys:String>
     <sys:String x:Key="SettingsGraphSavedAtFormat">Saved: {0}</sys:String>
     <sys:String x:Key="SettingsGraphSavedPathFormat">Path: {0}</sys:String>
     <sys:String x:Key="SettingsGraphSaveFailedFormat">Save failed: {0}</sys:String>
@@ -71,6 +84,8 @@
     <sys:String x:Key="LabelSearch">Search:</sys:String>
     <sys:String x:Key="LabelRealtimeFilter">Realtime filter</sys:String>
     <sys:String x:Key="StatusReady">Ready</sys:String>
+    <sys:String x:Key="StatusCancelNotImplemented">Cancel is not implemented.</sys:String>
+    <sys:String x:Key="StatusHiddenFiltersApplied">Hidden filters applied.</sys:String>
     <sys:String x:Key="StatusCopiedJson">JSON copied.</sys:String>
     <sys:String x:Key="StatusCopiedMessage">Message copied.</sys:String>
     <sys:String x:Key="StatusCopiedSummary">Summary copied.</sys:String>
@@ -98,6 +113,12 @@
     <sys:String x:Key="LogSecurity">Security</sys:String>
     <sys:String x:Key="LogForwardedEvents">Forwarded Events</sys:String>
     <sys:String x:Key="GroupLevels">Levels</sys:String>
+    <sys:String x:Key="GroupHiddenFilters">Hidden Filters</sys:String>
+    <sys:String x:Key="LabelHiddenKeywords">Hidden Keywords</sys:String>
+    <sys:String x:Key="HintHiddenKeywords">Enter up to 5 items using new lines or commas.</sys:String>
+    <sys:String x:Key="LabelHiddenEventIds">Hidden Event IDs</sys:String>
+    <sys:String x:Key="HintHiddenEventIds">Enter up to 5 items using new lines or commas. Use half-width alphanumeric characters.</sys:String>
+    <sys:String x:Key="BtnApplyHiddenFilters">Apply</sys:String>
     <sys:String x:Key="LevelCritical">Critical</sys:String>
     <sys:String x:Key="LevelError">Error</sys:String>
     <sys:String x:Key="LevelWarning">Warning</sys:String>
@@ -120,6 +141,9 @@
     <sys:String x:Key="SortProvider">Provider</sys:String>
     <sys:String x:Key="SortEventId">EventId</sys:String>
     <sys:String x:Key="LabelTopN">Top N:</sys:String>
+    <sys:String x:Key="LabelDisplayCount">Display Count</sys:String>
+    <sys:String x:Key="LargeDisplayCountWarning">Warning: Displaying 10,000 or more events may take a long time.</sys:String>
+    <sys:String x:Key="ColRowNumber">No.</sys:String>
     <sys:String x:Key="ColTime">Time</sys:String>
     <sys:String x:Key="ColLevel">Level</sys:String>
     <sys:String x:Key="ColProvider">Provider</sys:String>

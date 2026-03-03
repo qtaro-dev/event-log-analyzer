@@ -107,7 +107,7 @@
                         <TextBlock Text="{DynamicResource MenuTheme}" FontWeight="SemiBold"/>
                         <StackPanel Margin="0,8,0,0">
                             <RadioButton x:Name="RbThemeLight" Content="{DynamicResource ThemeLight}" Checked="RbTheme_Checked"/>
-                            <RadioButton x:Name="RbThemeDark" Content="{DynamicResource ThemeDark}" Margin="0,6,0,0" Checked="RbTheme_Checked"/>
+                            <RadioButton x:Name="RbThemeDark" Content="{DynamicResource ThemeDark}" Margin="0,6,0,0" Checked="RbTheme_Checked" Visibility="Collapsed"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -131,6 +131,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -418,7 +419,77 @@
                                 </Popup>
                             </Grid>
 
-                            <Border Grid.Row="5"
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="{DynamicResource SettingsOutputListSelectionColor}" VerticalAlignment="Center" Margin="0,0,8,6"/>
+                            <Grid Grid.Row="5" Grid.Column="1" Margin="0,0,0,6">
+                                <primitives:ToggleButton x:Name="TglOutputListSelectionColorPicker"
+                                        MinHeight="28"
+                                        HorizontalAlignment="Left"
+                                        Padding="6,2"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        Background="{DynamicResource InputBackgroundBrush}">
+                                    <Border Width="16"
+                                            Height="16"
+                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderThickness="1"
+                                            Background="{Binding OutputListSelectionPreviewBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                </primitives:ToggleButton>
+                                <Popup x:Name="PopupOutputListSelectionColor"
+                                       PlacementTarget="{Binding ElementName=TglOutputListSelectionColorPicker}"
+                                       IsOpen="{Binding IsChecked, ElementName=TglOutputListSelectionColorPicker, Mode=TwoWay}"
+                                       Placement="Bottom"
+                                       StaysOpen="False"
+                                       AllowsTransparency="True">
+                                    <Border Background="{DynamicResource PanelBackgroundBrush}"
+                                            BorderBrush="{DynamicResource PanelBorderBrush}"
+                                            BorderThickness="1"
+                                            Padding="8">
+                                        <StackPanel>
+                                            <ItemsControl ItemsSource="{Binding OutputListSelectionColorChoices, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type local:ColorChoice}">
+                                                        <Button Tag="{Binding Key}"
+                                                                Click="OutputListSelectionColorSwatch_Click"
+                                                                Margin="0,0,6,6"
+                                                                Padding="0"
+                                                                Background="Transparent"
+                                                                BorderThickness="0">
+                                                            <Border Width="20"
+                                                                    Height="20"
+                                                                    CornerRadius="10"
+                                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                                    BorderThickness="1"
+                                                                    Background="{Binding Brush}">
+                                                                <Border.Style>
+                                                                    <Style TargetType="Border">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                                <Setter Property="BorderBrush" Value="{DynamicResource GridSelectionBackgroundBrush}"/>
+                                                                                <Setter Property="BorderThickness" Value="2"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Border.Style>
+                                                            </Border>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <Button Content="{DynamicResource SettingsCustomColor}"
+                                                    HorizontalAlignment="Left"
+                                                    MinWidth="92"
+                                                    Click="OutputListSelectionCustomColor_Click"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+
+                            <Border Grid.Row="6"
                                     Grid.Column="1"
                                     Margin="0,8,0,0"
                                     Height="16"
@@ -427,7 +498,13 @@
                                     BorderThickness="1"
                                     Background="{Binding BarNormalPreviewBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
 
-                            <StackPanel Grid.Row="6" Grid.Column="1" Margin="0,8,0,0">
+                            <StackPanel Grid.Row="7" Grid.ColumnSpan="2" Margin="0,8,0,0" HorizontalAlignment="Left">
+                                <Button x:Name="BtnSaveGraphConfig"
+                                        Content="{DynamicResource SettingsSaveGraphConfig}"
+                                        MinWidth="92"
+                                        HorizontalAlignment="Left"
+                                        Margin="0,0,0,8"
+                                        Click="BtnSaveGraphConfig_Click"/>
                                 <TextBlock x:Name="TxtGraphConfigSaveState"
                                            Foreground="{DynamicResource ForegroundBrush}"/>
                                 <TextBlock x:Name="TxtGraphConfigPath"

@@ -8,6 +8,7 @@
     <SolidColorBrush x:Key="InputBackgroundBrush" Color="#FF2E343C"/>
     <SolidColorBrush x:Key="InputForegroundBrush" Color="#FFF3F7FB"/>
     <SolidColorBrush x:Key="GridHeaderBackgroundBrush" Color="#FF323843"/>
+    <SolidColorBrush x:Key="OutputListSelectionBrush" Color="#FF323843"/>
     <SolidColorBrush x:Key="GridRowBackgroundBrush" Color="#FF252A31"/>
     <SolidColorBrush x:Key="GridAltRowBackgroundBrush" Color="#FF2B3139"/>
     <SolidColorBrush x:Key="GridSelectionBackgroundBrush" Color="#FF335C87"/>

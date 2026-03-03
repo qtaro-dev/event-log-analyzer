@@ -1,7 +1,13 @@
 using System;
 using System.Diagnostics;
 using System.Windows;
+using MediaBrush = System.Windows.Media.Brush;
+using MediaBrushes = System.Windows.Media.Brushes;
+using MediaColor = System.Windows.Media.Color;
+using MediaColorConverter = System.Windows.Media.ColorConverter;
+using SolidColorBrush = System.Windows.Media.SolidColorBrush;
 using LogAnalyzer.Properties;
+using LogAnalyzer.Services;
 using LogAnalyzer.Views;
 using ModernWpf;
 
@@ -42,6 +48,14 @@ namespace LogAnalyzer
                     }
                 }
             }
+
+            ApplyOutputListSelectionColor();
+        }
+
+        public void ApplyOutputListSelectionColor()
+        {
+            MediaBrush brush = ResolveBrushFromSlot(Settings.Default.OutputListSelectionKey, "OutputListSelectionBrush");
+            Current.Resources["OutputListSelectionBrush"] = brush;
         }
 
         public void ApplyLanguage(string? language)
@@ -65,19 +79,20 @@ namespace LogAnalyzer
         protected override void OnStartup(StartupEventArgs e)
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            SettingsIniService.LoadIntoSettings();
 
             string uiLanguage = string.Equals(Settings.Default.UiLanguage, "ja", StringComparison.OrdinalIgnoreCase) ? "ja" : "en";
             if (!string.Equals(Settings.Default.UiLanguage, uiLanguage, StringComparison.OrdinalIgnoreCase))
             {
                 Settings.Default.UiLanguage = uiLanguage;
-                Settings.Default.Save();
+                SettingsIniService.SaveSettings();
             }
 
             string uiTheme = string.Equals(Settings.Default.UiTheme, "Dark", StringComparison.OrdinalIgnoreCase) ? "Dark" : "Light";
             if (!string.Equals(Settings.Default.UiTheme, uiTheme, StringComparison.OrdinalIgnoreCase))
             {
                 Settings.Default.UiTheme = uiTheme;
-                Settings.Default.Save();
+                SettingsIniService.SaveSettings();
             }
 
             ApplyTheme(uiTheme);
@@ -95,7 +110,7 @@ namespace LogAnalyzer
                 }
 
                 Settings.Default.AgreeToAdminLogAccess = true;
-                Settings.Default.Save();
+                SettingsIniService.SaveSettings();
             }
 
             base.OnStartup(e);
@@ -104,6 +119,50 @@ namespace LogAnalyzer
             MainWindow = mainWindow;
             ShutdownMode = ShutdownMode.OnMainWindowClose;
             mainWindow.Show();
+        }
+
+        private MediaBrush ResolveBrushFromSlot(string? slotValue, string fallbackKey)
+        {
+            const string themePrefix = "theme:";
+            const string argbPrefix = "argb:";
+
+            string normalized = string.IsNullOrWhiteSpace(slotValue)
+                ? $"{themePrefix}{fallbackKey}"
+                : slotValue;
+
+            if (!normalized.StartsWith(themePrefix, StringComparison.OrdinalIgnoreCase) &&
+                !normalized.StartsWith(argbPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                normalized = $"{themePrefix}{normalized}";
+            }
+
+            if (normalized.StartsWith(themePrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                string key = normalized[themePrefix.Length..];
+                if (Current.TryFindResource(key) is MediaBrush selectedBrush)
+                {
+                    return selectedBrush;
+                }
+            }
+
+            if (normalized.StartsWith(argbPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                string argb = normalized[argbPrefix.Length..];
+                try
+                {
+                    object? colorObj = MediaColorConverter.ConvertFromString(argb);
+                    if (colorObj is MediaColor color)
+                    {
+                        return new SolidColorBrush(color);
+                    }
+                }
+                catch
+                {
+                    // fall back to theme resource
+                }
+            }
+
+            return (MediaBrush)(Current.TryFindResource(fallbackKey) ?? MediaBrushes.Transparent);
         }
     }
 }

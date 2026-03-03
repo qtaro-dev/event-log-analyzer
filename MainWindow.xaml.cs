@@ -22,9 +22,15 @@ namespace LogAnalyzer
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const int MaxPreviewEvents = 100000;
+        private const int MaxPreviewEvents = 999999;
+        private const int MaxHiddenKeywordCount = 5;
+        private const int MaxHiddenEventIdCount = 5;
         private List<EventRecordInfo> _lastCollectedNormalized = new();
+        private List<EventRecordInfo> _visibleCollectedNormalized = new();
+        private List<string> _appliedHiddenKeywords = new();
+        private HashSet<int> _appliedHiddenEventIds = new();
         private bool _isApplyingSettings;
+        private bool _hasLoggedLargeDisplayCountWarning;
         private string _timeFormat = "24h";
         private AnalysisResult _currentAnalysis = new();
         private AnalysisWindow? _analysisWindow;
@@ -38,12 +44,11 @@ namespace LogAnalyzer
             BtnCollect.Click += BtnCollect_Click;
             BtnAnalyze.Click += (_, _) =>
             {
-                OnSimpleButtonClicked("Analyze");
                 RefreshAnalysis(openWindow: true);
             };
-            BtnRunAll.Click += (_, _) => OnSimpleButtonClicked("Run All");
             BtnExport.Click += BtnExport_Click;
             BtnCancel.Click += BtnCancel_Click;
+            BtnApplyHiddenFilters.Click += BtnApplyHiddenFilters_Click;
             BtnRefreshAnalysis.Click += (_, _) => RefreshAnalysis(openWindow: true);
             BtnOpenAnalysisWindow.Click += (_, _) => OpenOrUpdateAnalysisWindow();
             BtnCopyEventJson.Click += BtnCopyEventJson_Click;
@@ -249,17 +254,9 @@ namespace LogAnalyzer
             }
         }
 
-        private void OnSimpleButtonClicked(string buttonLabel)
-        {
-            string message = $"{buttonLabel} clicked";
-            SetStatus(message);
-            AppendRunLog(message);
-        }
-
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
-            SetStatus("Cancel clicked");
-            AppendRunLog("Cancel clicked (MVP-1: cancellation is not implemented yet)");
+            SetStatus(GetResourceString("StatusCancelNotImplemented", "Cancel is not implemented."));
         }
 
         private async void BtnCollect_Click(object sender, RoutedEventArgs e)
@@ -271,7 +268,7 @@ namespace LogAnalyzer
 
             SetStatus("Collecting...");
             AppendRunLog(
-                $"Collecting events: Logs={string.Join(",", request.LogNames)}; Levels={string.Join(",", request.LevelNames)}; Range={request.StartTime:yyyy-MM-dd HH:mm:ss}..{request.EndTime:yyyy-MM-dd HH:mm:ss}; Max={request.MaxEvents}");
+                $"Collecting events: Logs={BuildLogsLabel()}; Levels={string.Join(",", request.LevelNames)}; Range={request.StartTime:yyyy-MM-dd HH:mm:ss}..{request.EndTime:yyyy-MM-dd HH:mm:ss}; Max={request.MaxEvents}");
             SetCollectingUiState(true);
 
             try
@@ -306,18 +303,14 @@ namespace LogAnalyzer
                     string logName = parts[0];
                     string reason = parts.Length > 1 ? parts[1] : string.Empty;
                     string format = GetResourceString("CollectSkippedLogFormat", "Skipped log '{0}': {1}");
-                    AppendRunLog(string.Format(System.Globalization.CultureInfo.CurrentUICulture, format, logName, reason));
+                    AppendRunLog(string.Format(System.Globalization.CultureInfo.CurrentUICulture, format, GetDisplayLogName(logName), reason));
                 }
 
                 _lastCollectedNormalized = normalizedEvents;
-                List<EventRow> rows = normalizedEvents.Select(ToDisplayRow).ToList();
-                GridPreview.ItemsSource = rows;
-                ApplyCurrentSort();
-                StatusEventCount.Text = rows.Count.ToString();
+                ApplyVisibleFiltersAndRefresh();
 
-                SetStatus($"Collected: {rows.Count}");
-                AppendRunLog($"Collected {rows.Count} events");
-                RefreshAnalysis();
+                SetStatus($"Collected: {_visibleCollectedNormalized.Count}");
+                AppendRunLog($"Collected {_visibleCollectedNormalized.Count} events");
                 UpdateSummaryText();
             }
             catch (Exception ex)
@@ -335,7 +328,6 @@ namespace LogAnalyzer
         {
             BtnCollect.IsEnabled = !isCollecting;
             BtnAnalyze.IsEnabled = !isCollecting;
-            BtnRunAll.IsEnabled = !isCollecting;
             BtnCancel.IsEnabled = isCollecting;
         }
 
@@ -441,79 +433,129 @@ namespace LogAnalyzer
 
         private void RebuildPreviewRows()
         {
-            if (_lastCollectedNormalized.Count == 0)
-            {
-                return;
-            }
-
-            GridPreview.ItemsSource = _lastCollectedNormalized.Select(ToDisplayRow).ToList();
-            ApplyCurrentSort();
+            ApplyVisibleFiltersAndRefresh();
         }
 
-        private async Task WriteJsonlAsync(List<EventRecordInfo> normalizedEvents, string batchId)
+        private async Task WriteJsonlAsync(List<EventRecordInfo> normalizedEvents, string fullPath)
         {
-            string outputDirectory = ResolveOutputDirectory();
-            Directory.CreateDirectory(outputDirectory);
-
-            string fileName = BuildUniqueFileName(outputDirectory, "events", batchId, ".jsonl");
-            string fullPath = Path.Combine(outputDirectory, fileName);
-            AppendRunLog($"Writing {fileName}: {fullPath}");
+            string fileName = Path.GetFileName(fullPath);
+            AppendRunLog(string.Format(
+                System.Globalization.CultureInfo.CurrentUICulture,
+                GetResourceString("ExportJsonlWritingFormat", "Writing {0}: {1}"),
+                fileName,
+                fullPath));
 
             try
             {
                 await Task.Run(() => EventExporter.WriteJsonl(normalizedEvents, fullPath));
-                AppendRunLog($"Wrote {fileName}: {normalizedEvents.Count} lines");
+                AppendRunLog(string.Format(
+                    System.Globalization.CultureInfo.CurrentUICulture,
+                    GetResourceString("ExportJsonlWroteFormat", "Wrote {0}: {1} lines"),
+                    fileName,
+                    normalizedEvents.Count));
                 AppendOutputEntry($"{fileName}: {fullPath}");
             }
             catch (Exception ex)
             {
-                AppendRunLog($"ERROR: Failed to write {fileName}: {ex.Message}");
+                AppendRunLog(string.Format(
+                    System.Globalization.CultureInfo.CurrentUICulture,
+                    GetResourceString("ExportJsonlFailedFormat", "ERROR: Failed to write {0}: {1}"),
+                    fileName,
+                    ex.Message));
             }
         }
 
-        private string ResolveOutputDirectory()
+        private async Task WriteAnalysisJsonAsync(AnalysisResult analysis, string fullPath)
         {
-            string fromSettings = Settings.Default.OutputDirectory?.Trim() ?? string.Empty;
-            if (!string.IsNullOrWhiteSpace(fromSettings))
-            {
-                return fromSettings;
-            }
+            string fileName = Path.GetFileName(fullPath);
+            AppendRunLog(string.Format(
+                System.Globalization.CultureInfo.CurrentUICulture,
+                GetResourceString("ExportJsonWritingFormat", "Writing {0}: {1}"),
+                fileName,
+                fullPath));
 
-            string documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string defaultDir = Path.Combine(documents, "LogAnalyzer", DateTime.Now.ToString("yyyyMMdd_HHmmss"));
-            Settings.Default.OutputDirectory = defaultDir;
-            SaveSettingsSafe();
-            return defaultDir;
+            try
+            {
+                await Task.Run(() => EventExporter.WriteJson(analysis, fullPath));
+                AppendRunLog(string.Format(
+                    System.Globalization.CultureInfo.CurrentUICulture,
+                    GetResourceString("ExportJsonWroteFormat", "Wrote {0}."),
+                    fileName));
+                AppendOutputEntry($"{fileName}: {fullPath}");
+            }
+            catch (Exception ex)
+            {
+                AppendRunLog(string.Format(
+                    System.Globalization.CultureInfo.CurrentUICulture,
+                    GetResourceString("ExportJsonFailedFormat", "ERROR: Failed to write {0}: {1}"),
+                    fileName,
+                    ex.Message));
+            }
         }
 
         private async void BtnExport_Click(object? sender, RoutedEventArgs e)
         {
             if (_lastCollectedNormalized.Count == 0)
             {
-                AppendRunLog("ERROR: No collected events to export. Run Collect first.");
+                AppendRunLog(GetResourceString("ExportNoEventsError", "ERROR: No collected events to export. Run Collect first."));
                 return;
             }
 
-            string batchId = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            if (Settings.Default.WriteJsonl)
+            Microsoft.Win32.SaveFileDialog dialog = CreateExportSaveDialog();
+            bool? result = dialog.ShowDialog(this);
+            if (result != true)
             {
-                await WriteJsonlAsync(_lastCollectedNormalized, batchId);
+                return;
             }
+
+            string selectedPath = dialog.FileName;
+            if (string.IsNullOrWhiteSpace(selectedPath))
+            {
+                return;
+            }
+
+            string? selectedDirectory = Path.GetDirectoryName(selectedPath);
+            if (!string.IsNullOrWhiteSpace(selectedDirectory))
+            {
+                Settings.Default.OutputDirectory = selectedDirectory;
+                SaveSettingsSafe();
+            }
+
+            if (dialog.FilterIndex == 2)
+            {
+                await WriteAnalysisJsonAsync(_currentAnalysis, selectedPath);
+                return;
+            }
+
+            await WriteJsonlAsync(_lastCollectedNormalized, selectedPath);
         }
 
-        private static string BuildUniqueFileName(string directory, string baseName, string batchId, string extension)
+        private Microsoft.Win32.SaveFileDialog CreateExportSaveDialog()
         {
-            string stem = $"{baseName}_{batchId}";
-            string candidate = $"{stem}{extension}";
-            int suffix = 2;
+            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            string outputDirectory = Settings.Default.OutputDirectory?.Trim() ?? string.Empty;
+            string initialDirectory = !string.IsNullOrWhiteSpace(outputDirectory) && Directory.Exists(outputDirectory)
+                ? outputDirectory
+                : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            while (File.Exists(Path.Combine(directory, candidate)))
+            return new Microsoft.Win32.SaveFileDialog
             {
-                candidate = $"{stem}_{suffix}{extension}";
-                suffix++;
-            }
-
-            return candidate;
+                Title = GetResourceString("ExportSaveDialogTitle", "Export"),
+                InitialDirectory = initialDirectory,
+                AddExtension = true,
+                OverwritePrompt = true,
+                Filter = string.Format(
+                    System.Globalization.CultureInfo.CurrentUICulture,
+                    "{0}|*.jsonl|{1}|*.json",
+                    GetResourceString("ExportSaveFilterJsonl", "JSONL (Raw Events)"),
+                    GetResourceString("ExportSaveFilterJson", "JSON (Analysis)")),
+                FilterIndex = 1,
+                DefaultExt = "jsonl",
+                FileName = string.Format(
+                    System.Globalization.CultureInfo.CurrentUICulture,
+                    GetResourceString("ExportDefaultJsonlNameFormat", "events_{0}"),
+                    timestamp)
+            };
         }
 
         private void AppendOutputEntry(string line)
@@ -766,6 +808,19 @@ namespace LogAnalyzer
                 topN = MaxPreviewEvents;
             }
 
+            if (topN >= 10000)
+            {
+                if (!_hasLoggedLargeDisplayCountWarning)
+                {
+                    AppendRunLog(GetResourceString("LargeDisplayCountWarning", "Warning: Displaying 10,000 or more events may take a long time."));
+                    _hasLoggedLargeDisplayCountWarning = true;
+                }
+            }
+            else
+            {
+                _hasLoggedLargeDisplayCountWarning = false;
+            }
+
             Settings.Default.LastTopN = topN;
             SaveSettingsSafe();
         }
@@ -773,6 +828,14 @@ namespace LogAnalyzer
         private void TimeRange_Changed(object? sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             PersistTimeRangeSettings();
+        }
+
+        private void BtnApplyHiddenFilters_Click(object sender, RoutedEventArgs e)
+        {
+            _appliedHiddenKeywords = ParseHiddenKeywords();
+            _appliedHiddenEventIds = ParseHiddenEventIds();
+            ApplyVisibleFiltersAndRefresh();
+            SetStatus(GetResourceString("StatusHiddenFiltersApplied", "Hidden filters applied."));
         }
 
         private void PersistFilterSettings()
@@ -820,7 +883,7 @@ namespace LogAnalyzer
                 DateTime? rangeStart = DpStart.SelectedDate;
                 DateTime? rangeEnd = DpEnd.SelectedDate;
 
-                _currentAnalysis = AnalysisService.Analyze(_lastCollectedNormalized, logsLabel, rangeStart, rangeEnd);
+                _currentAnalysis = AnalysisService.Analyze(_visibleCollectedNormalized, logsLabel, rangeStart, rangeEnd);
                 TxtAnalysisStatus.Text =
                     $"Logs: {_currentAnalysis.LogsLabel}  Range: {FormatRange(_currentAnalysis.RangeStart)} - {FormatRange(_currentAnalysis.RangeEnd)}  Total: {_currentAnalysis.Total}";
                 UpdateSummaryText();
@@ -897,6 +960,19 @@ namespace LogAnalyzer
             return labels.Count == 0 ? "(none)" : string.Join(",", labels);
         }
 
+        private string GetDisplayLogName(string logName)
+        {
+            return logName switch
+            {
+                "System" => GetResourceString("LogSystem", "System"),
+                "Application" => GetResourceString("LogApplication", "Application"),
+                "Setup" => GetResourceString("LogSetup", "Setup"),
+                "Security" => GetResourceString("LogSecurity", "Security"),
+                "ForwardedEvents" => GetResourceString("LogForwardedEvents", "Forwarded Events"),
+                _ => logName
+            };
+        }
+
         private List<string> GetSelectedLogNames()
         {
             List<string> logNames = new();
@@ -926,6 +1002,99 @@ namespace LogAnalyzer
             }
 
             return logNames;
+        }
+
+        private void ApplyVisibleFiltersAndRefresh()
+        {
+            _visibleCollectedNormalized = BuildVisibleCollectedEvents();
+            List<EventRow> rows = _visibleCollectedNormalized
+                .Select(ToDisplayRow)
+                .Select((row, index) =>
+                {
+                    row.RowNumber = index + 1;
+                    return row;
+                })
+                .ToList();
+            GridPreview.ItemsSource = rows;
+            ApplyCurrentSort();
+            StatusEventCount.Text = _visibleCollectedNormalized.Count.ToString();
+            RefreshAnalysis();
+        }
+
+        private List<EventRecordInfo> BuildVisibleCollectedEvents()
+        {
+            if (_lastCollectedNormalized.Count == 0)
+            {
+                return new List<EventRecordInfo>();
+            }
+
+            return _lastCollectedNormalized
+                .Where(item => !ShouldHideEvent(item, _appliedHiddenEventIds, _appliedHiddenKeywords))
+                .ToList();
+        }
+
+        private bool ShouldHideEvent(EventRecordInfo item, HashSet<int> hiddenEventIds, List<string> hiddenKeywords)
+        {
+            if (hiddenEventIds.Contains(item.Id))
+            {
+                return true;
+            }
+
+            if (hiddenKeywords.Count == 0)
+            {
+                return false;
+            }
+
+            string message = item.Message ?? string.Empty;
+            string providerName = item.ProviderName ?? string.Empty;
+            string level = item.Level ?? string.Empty;
+
+            foreach (string keyword in hiddenKeywords)
+            {
+                if (message.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0 ||
+                    providerName.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0 ||
+                    level.IndexOf(keyword, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private List<string> ParseHiddenKeywords()
+        {
+            return ParseDelimitedEntries(TxtHiddenKeywords.Text, MaxHiddenKeywordCount);
+        }
+
+        private HashSet<int> ParseHiddenEventIds()
+        {
+            HashSet<int> ids = new();
+            foreach (string entry in ParseDelimitedEntries(TxtHiddenEventIds.Text, MaxHiddenEventIdCount))
+            {
+                if (int.TryParse(entry, out int eventId))
+                {
+                    ids.Add(eventId);
+                }
+            }
+
+            return ids;
+        }
+
+        private static List<string> ParseDelimitedEntries(string? text, int maxCount)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return new List<string>();
+            }
+
+            return text
+                .Split(new[] { '\r', '\n', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(static entry => entry.Trim())
+                .Where(static entry => !string.IsNullOrWhiteSpace(entry))
+                .Distinct(StringComparer.CurrentCultureIgnoreCase)
+                .Take(maxCount)
+                .ToList();
         }
 
         private string BuildLevelsLabel()
@@ -1045,7 +1214,7 @@ namespace LogAnalyzer
                 return null;
             }
 
-            EventRecordInfo? matched = _lastCollectedNormalized.FirstOrDefault(item =>
+            EventRecordInfo? matched = _visibleCollectedNormalized.FirstOrDefault(item =>
                 item.Id == row.Id &&
                 string.Equals(item.ProviderName ?? string.Empty, row.ProviderName ?? string.Empty, StringComparison.Ordinal) &&
                 item.TimeCreated.LocalDateTime == row.TimeCreated &&
@@ -1099,7 +1268,7 @@ namespace LogAnalyzer
 
             try
             {
-                Settings.Default.Save();
+                SettingsIniService.SaveSettings();
             }
             catch (Exception ex)
             {

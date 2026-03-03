@@ -80,6 +80,9 @@
     <Setting Name="HourBarLabelTextKey" Type="System.String" Scope="User">
       <Value Profile="(Default)">InputForegroundBrush</Value>
     </Setting>
+    <Setting Name="OutputListSelectionKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">theme:GridHeaderBackgroundBrush</Value>
+    </Setting>
     <Setting Name="PiePaletteAColorKeys" Type="System.String" Scope="User">
       <Value Profile="(Default)">AnalysisProviderColor1|AnalysisProviderColor2|AnalysisProviderColor3|AnalysisProviderColor4|AnalysisProviderColor5|AnalysisProviderColor6|AnalysisProviderColor7|AnalysisProviderColor8|AnalysisProviderColor1|AnalysisProviderColor2</Value>
     </Setting>

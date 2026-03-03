@@ -236,6 +236,15 @@ namespace LogAnalyzer.Properties
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("theme:GridHeaderBackgroundBrush")]
+        public string OutputListSelectionKey
+        {
+            get => (string)this[nameof(OutputListSelectionKey)];
+            set => this[nameof(OutputListSelectionKey)] = value;
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("AnalysisProviderColor1|AnalysisProviderColor2|AnalysisProviderColor3|AnalysisProviderColor4|AnalysisProviderColor5|AnalysisProviderColor6|AnalysisProviderColor7|AnalysisProviderColor8|AnalysisProviderColor1|AnalysisProviderColor2")]
         public string PiePaletteAColorKeys
         {

@@ -45,7 +45,9 @@
                                 <ContentPresenter
                                     ContentSource="Header"
                                     VerticalAlignment="Center"
-                                    TextElement.Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+                                    TextElement.Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                                    TextElement.FontWeight="Bold"
+                                    TextElement.FontSize="13"/>
                             </Border>
                         </Grid>
                     </ControlTemplate>
@@ -55,6 +57,47 @@
 
         <Style x:Key="SectionDataGridStyle" TargetType="{x:Type DataGrid}">
             <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="OutputListItemStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border x:Name="ItemBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource OutputListSelectionBrush}"/>
+                                <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource OutputListSelectionBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource OutputListSelectionBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource OutputListSelectionBrush}"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
     <DockPanel>
@@ -93,9 +136,7 @@
             <ToolBar>
                 <Button Content="{DynamicResource BtnCollect}" x:Name="BtnCollect" Padding="10,4" Margin="2"/>
                 <Button Content="{DynamicResource BtnAnalyze}" x:Name="BtnAnalyze" Padding="10,4" Margin="2"/>
-                <Button Content="{DynamicResource BtnRunAll}" x:Name="BtnRunAll" Padding="10,4" Margin="2"/>
                 <Button Content="{DynamicResource BtnExport}" x:Name="BtnExport" Padding="10,4" Margin="2"/>
-                <Separator/>
                 <Button Content="{DynamicResource BtnCancel}" x:Name="BtnCancel" Padding="10,4" Margin="2" IsEnabled="False"/>
             </ToolBar>
         </ToolBarTray>
@@ -176,7 +217,7 @@
 
                     <GroupBox Header="{DynamicResource GroupLogs}" Margin="0,0,0,8" FontSize="12" Style="{StaticResource SectionGroupBoxStyle}">
                         <StackPanel Margin="6">
-                            <CheckBox x:Name="ChkSystem" Content="{DynamicResource LogSystem}" IsChecked="True" Margin="0,0,0,2" FontSize="11"/>
+                            <CheckBox x:Name="ChkSystem" Content="{DynamicResource LogSystem}" IsChecked="True" Margin="0,0,0,2"/>
                             <CheckBox x:Name="ChkApplication" Content="{DynamicResource LogApplication}" IsChecked="True" Margin="0,0,0,2"/>
                             <CheckBox x:Name="ChkSetup" Content="{DynamicResource LogSetup}" IsChecked="True" Margin="0,0,0,2"/>
                             <CheckBox x:Name="ChkSecurity" Content="{DynamicResource LogSecurity}" IsChecked="True" Margin="0,0,0,2"/>
@@ -195,6 +236,36 @@
                         </Grid>
                     </GroupBox>
 
+                    <GroupBox Header="{DynamicResource GroupHiddenFilters}" Margin="0,0,0,8" FontSize="12" Style="{StaticResource SectionGroupBoxStyle}">
+                        <StackPanel Margin="6">
+                            <TextBlock Text="{DynamicResource LabelHiddenKeywords}" />
+                            <TextBox x:Name="TxtHiddenKeywords"
+                                     Margin="0,4,0,0"
+                                     Height="56"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto"/>
+                            <TextBlock Text="{DynamicResource HintHiddenKeywords}" Opacity="0.7" Margin="0,4,0,0"/>
+
+                            <Separator Margin="0,10,0,10"/>
+
+                            <TextBlock Text="{DynamicResource LabelHiddenEventIds}" />
+                            <TextBox x:Name="TxtHiddenEventIds"
+                                     Margin="0,4,0,0"
+                                     Height="56"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto"/>
+                            <TextBlock Text="{DynamicResource HintHiddenEventIds}" Opacity="0.7" Margin="0,4,0,0"/>
+
+                            <Button x:Name="BtnApplyHiddenFilters"
+                                    Content="{DynamicResource BtnApplyHiddenFilters}"
+                                    Margin="0,10,0,0"
+                                    Padding="10,4"
+                                    HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </GroupBox>
+
                 </StackPanel>
             </ScrollViewer>
 
@@ -206,7 +277,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <DockPanel Grid.Row="0" Margin="0,0,0,8">
+                    <DockPanel Grid.Row="0" Margin="0,0,0,8" LastChildFill="False">
                         <TextBlock Text="{DynamicResource LabelSort}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <ComboBox x:Name="CmbSort" Width="160" SelectedIndex="0">
                             <ComboBoxItem Content="{DynamicResource SortTimeDesc}"/>
@@ -216,8 +287,8 @@
                             <ComboBoxItem Content="{DynamicResource SortEventId}"/>
                         </ComboBox>
                         <Separator Margin="10,0,10,0"/>
-                        <TextBlock Text="{DynamicResource LabelTopN}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBox x:Name="TxtTopN" Width="102" Text="500"/>
+                        <TextBlock Text="{DynamicResource LabelDisplayCount}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBox x:Name="TxtTopN" Width="100" Text="500"/>
                     </DockPanel>
 
                     <DataGrid Grid.Row="1"
@@ -234,6 +305,7 @@
                               ScrollViewer.CanContentScroll="True"
                               Style="{StaticResource SectionDataGridStyle}">
                         <DataGrid.Columns>
+                            <DataGridTextColumn Header="{DynamicResource ColRowNumber}" Width="70" Binding="{Binding RowNumber}"/>
                             <DataGridTextColumn Header="{DynamicResource ColTime}" Width="160" Binding="{Binding TimeDisplay}"/>
                             <DataGridTextColumn Header="{DynamicResource ColLevel}" Width="90" Binding="{Binding Level}"/>
                             <DataGridTextColumn Header="{DynamicResource ColProvider}" Width="200" Binding="{Binding ProviderName}"/>
@@ -329,7 +401,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <ListBox x:Name="ListOutputs" Grid.Row="0"/>
+                        <ListBox x:Name="ListOutputs" Grid.Row="0" ItemContainerStyle="{StaticResource OutputListItemStyle}"/>
                         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
                             <Button x:Name="BtnOpenSelectedOutput" Content="{DynamicResource BtnOpen}" Padding="10,2" Margin="0,0,6,0"/>
                             <Button x:Name="BtnOpenOutputFolder" Content="{DynamicResource BtnOpenFolder}" Padding="10,2"/>

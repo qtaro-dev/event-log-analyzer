@@ -26,3 +26,6 @@ TestResults/
 
 # Local settings
 appsettings.Development.json
+
+# Output directories
+output/

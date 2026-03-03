@@ -13,6 +13,17 @@
     <sys:String x:Key="MenuExportCsv">CSVを出力</sys:String>
     <sys:String x:Key="MenuExportSummary">サマリー(MD)を出力</sys:String>
     <sys:String x:Key="MenuExportJsonl">JSONLを出力</sys:String>
+    <sys:String x:Key="ExportSaveDialogTitle">エクスポート</sys:String>
+    <sys:String x:Key="ExportSaveFilterJsonl">JSONL（生データ）</sys:String>
+    <sys:String x:Key="ExportSaveFilterJson">JSON（集計）</sys:String>
+    <sys:String x:Key="ExportDefaultJsonlNameFormat">events_{0}</sys:String>
+    <sys:String x:Key="ExportNoEventsError">ERROR: エクスポートするイベントがありません。先に収集を実行してください。</sys:String>
+    <sys:String x:Key="ExportJsonlWritingFormat">書き込み中 {0}: {1}</sys:String>
+    <sys:String x:Key="ExportJsonlWroteFormat">書き込み完了 {0}: {1} 行</sys:String>
+    <sys:String x:Key="ExportJsonlFailedFormat">ERROR: {0} の書き込みに失敗しました: {1}</sys:String>
+    <sys:String x:Key="ExportJsonWritingFormat">書き込み中 {0}: {1}</sys:String>
+    <sys:String x:Key="ExportJsonWroteFormat">書き込み完了 {0}</sys:String>
+    <sys:String x:Key="ExportJsonFailedFormat">ERROR: {0} の書き込みに失敗しました: {1}</sys:String>
     <sys:String x:Key="MenuTools">ツール(_T)</sys:String>
     <sys:String x:Key="MenuOpenSettings">設定</sys:String>
     <sys:String x:Key="SettingsWindowTitle">設定</sys:String>
@@ -30,6 +41,7 @@
     <sys:String x:Key="SettingsHourlyBarColor">棒グラフ通常色</sys:String>
     <sys:String x:Key="SettingsHourlyPeakColor">棒グラフピーク色</sys:String>
     <sys:String x:Key="SettingsHourlyLabelColor">棒グラフ数値文字色</sys:String>
+    <sys:String x:Key="SettingsOutputListSelectionColor">出力ファイル選択色</sys:String>
     <sys:String x:Key="SettingsColorOptionHeader">ヘッダー色</sys:String>
     <sys:String x:Key="SettingsColorOptionSelection">選択色</sys:String>
     <sys:String x:Key="SettingsColorOptionPanel">パネル色</sys:String>
@@ -42,6 +54,7 @@
     <sys:String x:Key="SettingsPaletteClone">複製</sys:String>
     <sys:String x:Key="SettingsPaletteDelete">削除</sys:String>
     <sys:String x:Key="SettingsGraphSavePending">保存待ち...</sys:String>
+    <sys:String x:Key="SettingsSaveGraphConfig">保存</sys:String>
     <sys:String x:Key="SettingsGraphSavedAtFormat">保存済み: {0}</sys:String>
     <sys:String x:Key="SettingsGraphSavedPathFormat">保存先: {0}</sys:String>
     <sys:String x:Key="SettingsGraphSaveFailedFormat">保存失敗: {0}</sys:String>
@@ -71,6 +84,8 @@
     <sys:String x:Key="LabelSearch">検索:</sys:String>
     <sys:String x:Key="LabelRealtimeFilter">リアルタイムフィルター</sys:String>
     <sys:String x:Key="StatusReady">準備完了</sys:String>
+    <sys:String x:Key="StatusCancelNotImplemented">キャンセルは未実装です。</sys:String>
+    <sys:String x:Key="StatusHiddenFiltersApplied">非表示フィルターを適用しました。</sys:String>
     <sys:String x:Key="StatusCopiedJson">JSONをコピーしました。</sys:String>
     <sys:String x:Key="StatusCopiedMessage">メッセージをコピーしました。</sys:String>
     <sys:String x:Key="StatusCopiedSummary">サマリーをコピーしました。</sys:String>
@@ -98,6 +113,12 @@
     <sys:String x:Key="LogSecurity">セキュリティ</sys:String>
     <sys:String x:Key="LogForwardedEvents">転送されたイベント</sys:String>
     <sys:String x:Key="GroupLevels">レベル</sys:String>
+    <sys:String x:Key="GroupHiddenFilters">非表示フィルター</sys:String>
+    <sys:String x:Key="LabelHiddenKeywords">非表示キーワード</sys:String>
+    <sys:String x:Key="HintHiddenKeywords">改行 / カンマ区切りで最大5件まで指定できます。</sys:String>
+    <sys:String x:Key="LabelHiddenEventIds">非表示イベントID</sys:String>
+    <sys:String x:Key="HintHiddenEventIds">改行 / カンマ区切りで最大5件まで指定できます。半角英数字で入力してください。</sys:String>
+    <sys:String x:Key="BtnApplyHiddenFilters">適用</sys:String>
     <sys:String x:Key="LevelCritical">重大</sys:String>
     <sys:String x:Key="LevelError">エラー</sys:String>
     <sys:String x:Key="LevelWarning">警告</sys:String>
@@ -120,6 +141,9 @@
     <sys:String x:Key="SortProvider">プロバイダー</sys:String>
     <sys:String x:Key="SortEventId">イベントID</sys:String>
     <sys:String x:Key="LabelTopN">上位N件:</sys:String>
+    <sys:String x:Key="LabelDisplayCount">表示数</sys:String>
+    <sys:String x:Key="LargeDisplayCountWarning">警告: 10000件以上を表示すると表示に長時間かかる場合があります。</sys:String>
+    <sys:String x:Key="ColRowNumber">行</sys:String>
     <sys:String x:Key="ColTime">時刻</sys:String>
     <sys:String x:Key="ColLevel">レベル</sys:String>
     <sys:String x:Key="ColProvider">プロバイダー</sys:String>

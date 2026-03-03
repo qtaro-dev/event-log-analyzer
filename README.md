@@ -35,6 +35,46 @@ Originally developed to diagnose issues on personal machines, it is also intende
 
 ---
 
+---
+
+## 📷 Screenshots
+
+### ■ Main Window (Event Preview)
+Filter logs by machine, time range, and severity level.
+The right-side panel allows viewing JSON, message details, and Markdown summaries.
+
+![Main Screen](docs/screenshots/main.png)
+
+---
+
+### ■ Analysis Report
+Automatically aggregates collected data and visualizes:
+
+- Top Providers
+- Top Event IDs
+- Occurrence ratio (pie chart)
+- Hourly distribution (bar graph)
+- Auto-generated analysis memo
+- Markdown summary export
+
+![Analysis Screen](docs/screenshots/eventlog.png)
+
+---
+
+### ■ Settings Window
+- Export formats (JSON / CSV / Markdown)
+- Output folder selection
+- Analysis options
+- Multi-language support (Japanese / English)
+
+![Settings Screen](docs/screenshots/settings.png)
+
+---
+
+## 🔗 Repository
+
+https://github.com/qtaro-dev/event-log-analyzer
+
 ## Intended Use Cases
 
 * Root cause analysis when PC issues occur

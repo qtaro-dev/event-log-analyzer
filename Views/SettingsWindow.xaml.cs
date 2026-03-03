@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Threading;
 using LogAnalyzer.Models;
 using LogAnalyzer.Properties;
 using LogAnalyzer.Services;
@@ -161,18 +160,20 @@ namespace LogAnalyzer.Views
         };
 
         private readonly MainWindow _ownerWindow;
-        private readonly DispatcherTimer _graphSaveDebounceTimer;
         private bool _isApplying;
         private bool _isReady;
         private bool _isGraphBindingUpdating;
+        private bool _hasPendingGraphConfigChanges;
         private string _selectedPiePaletteId = "A";
         private string _selectedBarPaletteId = "A";
         private string _selectedHourLabelTextKey = $"{ThemePrefix}InputForegroundBrush";
+        private string _selectedOutputListSelectionKey = $"{ThemePrefix}GridHeaderBackgroundBrush";
         private UserConfig _userConfig = new();
         private string _configSavePath = string.Empty;
         private MediaBrush _barNormalPreviewBrush = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
         private MediaBrush _barPeakPreviewBrush = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
         private MediaBrush _barLabelPreviewBrush = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
+        private MediaBrush _outputListSelectionPreviewBrush = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -183,6 +184,7 @@ namespace LogAnalyzer.Views
         public ObservableCollection<PaletteChoice> BarPaletteChoices { get; } = new();
         public ObservableCollection<ColorChoice> GraphColorChoices { get; } = new();
         public ObservableCollection<ColorChoice> HourLabelColorChoices { get; } = new();
+        public ObservableCollection<ColorChoice> OutputListSelectionColorChoices { get; } = new();
 
         public MediaBrush BarNormalPreviewBrush
         {
@@ -223,14 +225,22 @@ namespace LogAnalyzer.Views
             }
         }
 
+        public MediaBrush OutputListSelectionPreviewBrush
+        {
+            get => _outputListSelectionPreviewBrush;
+            private set
+            {
+                if (!ReferenceEquals(_outputListSelectionPreviewBrush, value))
+                {
+                    _outputListSelectionPreviewBrush = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public SettingsWindow(MainWindow ownerWindow)
         {
             _ownerWindow = ownerWindow;
-            _graphSaveDebounceTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(500)
-            };
-            _graphSaveDebounceTimer.Tick += GraphSaveDebounceTimer_Tick;
             InitializeComponent();
             LoadFromSettings();
             Loaded += SettingsWindow_Loaded;
@@ -278,6 +288,7 @@ namespace LogAnalyzer.Views
                 _selectedPiePaletteId = NormalizePaletteId(_userConfig.SelectedPiePaletteId);
                 _selectedBarPaletteId = NormalizePaletteId(_userConfig.SelectedBarPaletteId);
                 _selectedHourLabelTextKey = NormalizeSlotValue(_userConfig.BarLabelTextSlot, $"{ThemePrefix}InputForegroundBrush");
+                _selectedOutputListSelectionKey = NormalizeSlotValue(Settings.Default.OutputListSelectionKey, $"{ThemePrefix}GridHeaderBackgroundBrush");
 
                 BuildGraphColorChoices();
                 BuildPaletteChoices();
@@ -286,6 +297,7 @@ namespace LogAnalyzer.Views
                 LoadPiePaletteSlots();
                 LoadBarPaletteSlots();
                 BuildHourLabelColorChoices();
+                BuildOutputListSelectionColorChoices();
                 UpdateGraphColorPreviews();
                 UpdateGraphSaveStatusSaved();
             }
@@ -297,10 +309,16 @@ namespace LogAnalyzer.Views
 
         private void LoadUserGraphConfig()
         {
+            bool hasExistingConfig = File.Exists(UserConfigService.PrimaryPath) || File.Exists(UserConfigService.FallbackPath);
             (UserConfig config, string loadedFrom) = UserConfigService.LoadOrDefault(CreateDefaultGraphConfig);
             _userConfig = config;
             _configSavePath = loadedFrom;
-            EnsureGraphConfigIntegrity();
+            bool changed = EnsureGraphConfigIntegrity();
+
+            if (!hasExistingConfig || changed)
+            {
+                SaveGraphConfigNow();
+            }
         }
 
         private UserConfig CreateDefaultGraphConfig()
@@ -328,45 +346,73 @@ namespace LogAnalyzer.Views
             };
         }
 
-        private void EnsureGraphConfigIntegrity()
+        private bool EnsureGraphConfigIntegrity()
         {
+            bool changed = false;
+
             if (_userConfig.PiePalettes.Count == 0 || _userConfig.BarPalettes.Count == 0)
             {
                 _userConfig = CreateDefaultGraphConfig();
-                return;
+                return true;
             }
 
             foreach (GraphPalette palette in _userConfig.PiePalettes)
             {
-                EnsurePaletteColorCount(palette, 10, BuildGradientSlots("PanelBackgroundBrush", 10));
+                changed |= EnsurePaletteColorCount(palette, 10, BuildGradientSlots("PanelBackgroundBrush", 10));
             }
 
             foreach (GraphPalette palette in _userConfig.BarPalettes)
             {
-                EnsurePaletteColorCount(palette, 4, BuildGradientSlots("GridHeaderBackgroundBrush", 4));
+                changed |= EnsurePaletteColorCount(palette, 4, BuildGradientSlots("GridHeaderBackgroundBrush", 4));
             }
 
-            _userConfig.SelectedPiePaletteId = NormalizePaletteId(_userConfig.SelectedPiePaletteId);
-            _userConfig.SelectedBarPaletteId = NormalizePaletteId(_userConfig.SelectedBarPaletteId);
-            _userConfig.BarLabelTextSlot = NormalizeSlotValue(_userConfig.BarLabelTextSlot, $"{ThemePrefix}InputForegroundBrush");
+            string normalizedPiePaletteId = NormalizePaletteId(_userConfig.SelectedPiePaletteId);
+            if (!string.Equals(_userConfig.SelectedPiePaletteId, normalizedPiePaletteId, StringComparison.Ordinal))
+            {
+                _userConfig.SelectedPiePaletteId = normalizedPiePaletteId;
+                changed = true;
+            }
+
+            string normalizedBarPaletteId = NormalizePaletteId(_userConfig.SelectedBarPaletteId);
+            if (!string.Equals(_userConfig.SelectedBarPaletteId, normalizedBarPaletteId, StringComparison.Ordinal))
+            {
+                _userConfig.SelectedBarPaletteId = normalizedBarPaletteId;
+                changed = true;
+            }
+
+            string normalizedBarLabelTextSlot = NormalizeSlotValue(_userConfig.BarLabelTextSlot, $"{ThemePrefix}InputForegroundBrush");
+            if (!string.Equals(_userConfig.BarLabelTextSlot, normalizedBarLabelTextSlot, StringComparison.Ordinal))
+            {
+                _userConfig.BarLabelTextSlot = normalizedBarLabelTextSlot;
+                changed = true;
+            }
+
+            return changed;
         }
 
-        private static void EnsurePaletteColorCount(GraphPalette palette, int expectedCount, string[] defaults)
+        private static bool EnsurePaletteColorCount(GraphPalette palette, int expectedCount, string[] defaults)
         {
+            bool changed = false;
+
             if (palette.Colors == null)
             {
                 palette.Colors = new System.Collections.Generic.List<string>();
+                changed = true;
             }
 
             while (palette.Colors.Count < expectedCount)
             {
                 palette.Colors.Add(defaults[Math.Min(palette.Colors.Count, defaults.Length - 1)]);
+                changed = true;
             }
 
             if (palette.Colors.Count > expectedCount)
             {
                 palette.Colors = palette.Colors.Take(expectedCount).ToList();
+                changed = true;
             }
+
+            return changed;
         }
 
         private bool EnsurePaletteDefaults()
@@ -378,6 +424,7 @@ namespace LogAnalyzer.Views
             SetIfEmpty(nameof(Settings.PiePaletteId), "PaletteA", ref changed);
             SetIfEmpty(nameof(Settings.BarPaletteSelectedId), "PaletteA", ref changed);
             SetIfEmpty(nameof(Settings.HourBarLabelTextKey), $"{ThemePrefix}InputForegroundBrush", ref changed);
+            SetIfEmpty(nameof(Settings.OutputListSelectionKey), $"{ThemePrefix}GridHeaderBackgroundBrush", ref changed);
 
             string[] pieA = BuildGradientSlots("PanelBackgroundBrush", 10);
             string[] pieB = BuildGradientSlots("GridSelectionBackgroundBrush", 10);
@@ -476,7 +523,7 @@ namespace LogAnalyzer.Views
 
             try
             {
-                Settings.Default.Save();
+                SettingsIniService.SaveSettings();
                 _ownerWindow.NotifySettingsChanged();
             }
             catch (Exception ex)
@@ -488,28 +535,40 @@ namespace LogAnalyzer.Views
         private void QueueGraphConfigSave()
         {
             TxtGraphConfigSaveState.Text = GetText("SettingsGraphSavePending");
-            _graphSaveDebounceTimer.Stop();
-            _graphSaveDebounceTimer.Start();
-        }
-
-        private void GraphSaveDebounceTimer_Tick(object? sender, EventArgs e)
-        {
-            _graphSaveDebounceTimer.Stop();
-            SaveGraphConfigNow();
+            _hasPendingGraphConfigChanges = true;
+            if (BtnSaveGraphConfig != null)
+            {
+                BtnSaveGraphConfig.IsEnabled = true;
+            }
         }
 
         private void SaveGraphConfigNow()
         {
+            Settings.Default.OutputListSelectionKey = _selectedOutputListSelectionKey;
+            SaveSettingsSafe();
             UserConfigService.SaveResult result = UserConfigService.Save(_userConfig);
             if (result.Success)
             {
                 _configSavePath = result.SavedPath;
+                _hasPendingGraphConfigChanges = false;
+                if (BtnSaveGraphConfig != null)
+                {
+                    BtnSaveGraphConfig.IsEnabled = false;
+                }
+                if (System.Windows.Application.Current is App app)
+                {
+                    app.ApplyOutputListSelectionColor();
+                }
                 UpdateGraphSaveStatusSaved();
             }
             else
             {
                 TxtGraphConfigSaveState.Text = string.Format(GetText("SettingsGraphSaveFailedFormat"), result.ErrorMessage ?? string.Empty);
                 TxtGraphConfigPath.Text = string.Format(GetText("SettingsGraphSavedPathFormat"), _configSavePath);
+                if (BtnSaveGraphConfig != null)
+                {
+                    BtnSaveGraphConfig.IsEnabled = true;
+                }
             }
         }
 
@@ -519,6 +578,15 @@ namespace LogAnalyzer.Views
                 GetText("SettingsGraphSavedAtFormat"),
                 DateTime.Now.ToString("HH:mm:ss"));
             TxtGraphConfigPath.Text = string.Format(GetText("SettingsGraphSavedPathFormat"), _configSavePath);
+            if (BtnSaveGraphConfig != null)
+            {
+                BtnSaveGraphConfig.IsEnabled = _hasPendingGraphConfigChanges;
+            }
+        }
+
+        private void BtnSaveGraphConfig_Click(object sender, RoutedEventArgs e)
+        {
+            SaveGraphConfigNow();
         }
 
         private void LstCategories_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -678,7 +746,7 @@ namespace LogAnalyzer.Views
             try
             {
                 Settings.Default.Reset();
-                Settings.Default.Save();
+                SettingsIniService.SaveSettings();
             }
             catch (Exception ex)
             {
@@ -692,11 +760,6 @@ namespace LogAnalyzer.Views
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
-            if (_graphSaveDebounceTimer.IsEnabled)
-            {
-                _graphSaveDebounceTimer.Stop();
-                SaveGraphConfigNow();
-            }
             Close();
         }
 
@@ -845,8 +908,10 @@ namespace LogAnalyzer.Views
                 ? BarPaletteSlots[1].Brush
                 : BarNormalPreviewBrush;
             BarLabelPreviewBrush = ResolveBrushFromSlot(_selectedHourLabelTextKey, "InputForegroundBrush");
+            OutputListSelectionPreviewBrush = ResolveBrushFromSlot(_selectedOutputListSelectionKey, "GridHeaderBackgroundBrush");
 
             ApplyChoiceSelection(HourLabelColorChoices, ExtractThemeKeyOrFallback(_selectedHourLabelTextKey, "InputForegroundBrush"));
+            ApplyChoiceSelection(OutputListSelectionColorChoices, ExtractThemeKeyOrFallback(_selectedOutputListSelectionKey, "GridHeaderBackgroundBrush"));
         }
 
         private void BuildGraphColorChoices()
@@ -862,13 +927,13 @@ namespace LogAnalyzer.Views
                 PiePaletteChoices.Clear();
                 foreach (GraphPalette palette in _userConfig.PiePalettes)
                 {
-                    PiePaletteChoices.Add(new PaletteChoice(palette.Id, palette.Name));
+                    PiePaletteChoices.Add(new PaletteChoice(palette.Id, GetPaletteDisplayName(palette, true)));
                 }
 
                 BarPaletteChoices.Clear();
                 foreach (GraphPalette palette in _userConfig.BarPalettes)
                 {
-                    BarPaletteChoices.Add(new PaletteChoice(palette.Id, palette.Name));
+                    BarPaletteChoices.Add(new PaletteChoice(palette.Id, GetPaletteDisplayName(palette, false)));
                 }
 
                 CmbPiePalette.ItemsSource = PiePaletteChoices;
@@ -880,6 +945,48 @@ namespace LogAnalyzer.Views
             }
         }
 
+        private string GetPaletteDisplayName(GraphPalette palette, bool isPiePalette)
+        {
+            string localizedDefault = string.Format(
+                GetText(isPiePalette ? "SettingsPalettePieNameFormat" : "SettingsPaletteBarNameFormat"),
+                NormalizePaletteId(palette.Id));
+
+            if (IsBuiltInPaletteName(palette.Name, isPiePalette))
+            {
+                return localizedDefault;
+            }
+
+            return string.IsNullOrWhiteSpace(palette.Name) ? localizedDefault : palette.Name;
+        }
+
+        private static bool IsBuiltInPaletteName(string? name, bool isPiePalette)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return true;
+            }
+
+            string trimmed = name.Trim();
+            string[] prefixes = isPiePalette
+                ? new[] { "円パレット ", "Pie Palette " }
+                : new[] { "棒パレット ", "Bar Palette " };
+
+            foreach (string prefix in prefixes)
+            {
+                if (trimmed.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    string suffix = trimmed[prefix.Length..].Trim();
+                    if (string.Equals(suffix, "A", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(suffix, "B", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private void BuildHourLabelColorChoices()
         {
             BuildChoiceList(HourLabelColorChoices, new[]
@@ -888,6 +995,20 @@ namespace LogAnalyzer.Views
                 "ForegroundBrush",
                 "PanelBackgroundBrush",
                 "GridHeaderBackgroundBrush"
+            });
+        }
+
+        private void BuildOutputListSelectionColorChoices()
+        {
+            BuildChoiceList(OutputListSelectionColorChoices, new[]
+            {
+                "GridHeaderBackgroundBrush",
+                "GridSelectionBackgroundBrush",
+                "AnalysisProviderColor3",
+                "AnalysisProviderColor4",
+                "AnalysisProviderColor5",
+                "AnalysisProviderColor6",
+                "PanelBackgroundBrush"
             });
         }
 
@@ -1190,6 +1311,37 @@ namespace LogAnalyzer.Views
             UpdateGraphColorPreviews();
             QueueGraphConfigSave();
             TglHourLabelColorPicker.IsChecked = false;
+        }
+
+        private void OutputListSelectionColorSwatch_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button button && button.Tag is string key && !string.IsNullOrWhiteSpace(key))
+            {
+                _selectedOutputListSelectionKey = NormalizeSlotValue($"{ThemePrefix}{key}", $"{ThemePrefix}GridHeaderBackgroundBrush");
+                UpdateGraphColorPreviews();
+                QueueGraphConfigSave();
+            }
+
+            TglOutputListSelectionColorPicker.IsChecked = false;
+        }
+
+        private void OutputListSelectionCustomColor_Click(object sender, RoutedEventArgs e)
+        {
+            using Forms.ColorDialog dialog = new();
+            dialog.FullOpen = true;
+            dialog.AnyColor = true;
+            dialog.Color = ToFormsColor(OutputListSelectionPreviewBrush);
+
+            if (dialog.ShowDialog() != Forms.DialogResult.OK)
+            {
+                return;
+            }
+
+            MediaColor selectedColor = MediaColor.FromArgb(dialog.Color.A, dialog.Color.R, dialog.Color.G, dialog.Color.B);
+            _selectedOutputListSelectionKey = $"{ArgbPrefix}{selectedColor}";
+            UpdateGraphColorPreviews();
+            QueueGraphConfigSave();
+            TglOutputListSelectionColorPicker.IsChecked = false;
         }
 
         private void BtnChangePieColor_Click(object sender, RoutedEventArgs e)

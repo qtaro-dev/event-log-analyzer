@@ -2,6 +2,7 @@ namespace LogAnalyzer.Models
 {
     public class EventRow
     {
+        public int RowNumber { get; set; }
         public DateTime TimeCreated { get; set; }
         public string TimeDisplay { get; set; } = string.Empty;
         public string Level { get; set; } = string.Empty;

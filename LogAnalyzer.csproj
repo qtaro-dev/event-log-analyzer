@@ -8,6 +8,7 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <DefaultItemExcludes>$(DefaultItemExcludes);build_verify\**;obj_verify\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
