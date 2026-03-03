@@ -29,3 +29,6 @@ appsettings.Development.json
 
 # Output directories
 output/
+
+# verify outputs
+obj_verify/
