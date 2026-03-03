@@ -1,0 +1,449 @@
+<Window x:Class="LogAnalyzer.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:LogAnalyzer.Views"
+        xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        Title="{DynamicResource SettingsWindowTitle}"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        Width="820"
+        Height="520"
+        MinWidth="760"
+        MinHeight="460"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource AppBackgroundBrush}"
+        Foreground="{DynamicResource ForegroundBrush}">
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Column="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Background="{DynamicResource PanelBackgroundBrush}">
+            <ListBox x:Name="LstCategories"
+                     SelectionChanged="LstCategories_SelectionChanged">
+                <ListBoxItem Content="{DynamicResource SettingsCategoryOutput}" />
+                <ListBoxItem Content="{DynamicResource SettingsCategoryTimeFormat}" />
+                <ListBoxItem Content="{DynamicResource SettingsCategoryTheme}" />
+                <ListBoxItem Content="{DynamicResource SettingsCategoryLanguage}" />
+                <ListBoxItem Content="{DynamicResource SettingsCategoryAnalysis}" />
+            </ListBox>
+        </Border>
+
+        <Border Grid.Column="2"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                Background="{DynamicResource PanelBackgroundBrush}"
+                Padding="12">
+            <Grid TextElement.Foreground="{DynamicResource AppTextBrush}">
+                <Grid x:Name="PanelOutput">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource LabelOutputFolder}" FontWeight="SemiBold"/>
+                        <Grid Margin="0,6,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="TxtOutputDirSetting"
+                                     Grid.Column="0"
+                                     MinHeight="26"
+                                     Padding="6,2"
+                                     VerticalContentAlignment="Center"
+                                     HorizontalAlignment="Stretch"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     TextChanged="TxtOutputDirSetting_TextChanged"/>
+                            <Button x:Name="BtnBrowseOutputDirSetting"
+                                    Grid.Column="1"
+                                    Content="{DynamicResource BtnBrowseOutput}"
+                                    Width="90"
+                                    Margin="8,0,0,0"
+                                    Click="BtnBrowseOutputDirSetting_Click"/>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                            <Button x:Name="BtnClearOutputFolderSetting"
+                                    Content="{DynamicResource MenuClearOutputFolder}"
+                                    Click="BtnClearOutputFolderSetting_Click"/>
+                            <Button x:Name="BtnResetSettingsSetting"
+                                    Content="{DynamicResource MenuResetSettings}"
+                                    Margin="8,0,0,0"
+                                    Click="BtnResetSettingsSetting_Click"/>
+                        </StackPanel>
+
+                        <WrapPanel Margin="0,12,0,0">
+                            <CheckBox x:Name="ChkWriteJsonlSetting" Content="{DynamicResource ChkEventsJsonl}" Margin="0,0,16,0" Checked="OutputFlag_Changed" Unchecked="OutputFlag_Changed"/>
+                            <CheckBox x:Name="ChkWriteCsvSetting" Content="{DynamicResource ChkEventsCsv}" Margin="0,0,16,0" Checked="OutputFlag_Changed" Unchecked="OutputFlag_Changed"/>
+                            <CheckBox x:Name="ChkWriteSummarySetting" Content="{DynamicResource ChkSummaryMd}" Checked="OutputFlag_Changed" Unchecked="OutputFlag_Changed"/>
+                        </WrapPanel>
+
+                        <Separator Margin="0,16,0,16"/>
+
+                        <TextBlock Text="{DynamicResource GroupAdvanced}" FontWeight="SemiBold"/>
+                        <StackPanel Margin="0,8,0,0">
+                            <CheckBox x:Name="ChkDedupMessageSetting" Content="{DynamicResource ChkDedupMessage}" Checked="AdvancedFlag_Changed" Unchecked="AdvancedFlag_Changed"/>
+                            <CheckBox x:Name="ChkIncludeXmlSetting" Content="{DynamicResource ChkIncludeXml}" Margin="0,6,0,0" Checked="AdvancedFlag_Changed" Unchecked="AdvancedFlag_Changed"/>
+                            <CheckBox x:Name="ChkShowOnlyNewSetting" Content="{DynamicResource ChkShowOnlyNew}" Margin="0,6,0,0" Checked="AdvancedFlag_Changed" Unchecked="AdvancedFlag_Changed"/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="PanelTimeFormat" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource MenuTimeFormat}" FontWeight="SemiBold"/>
+                        <StackPanel Margin="0,8,0,0">
+                            <RadioButton x:Name="RbTime24" Content="{DynamicResource TimeFormat24}" Checked="RbTimeFormat_Checked"/>
+                            <RadioButton x:Name="RbTime12" Content="{DynamicResource TimeFormat12}" Margin="0,6,0,0" Checked="RbTimeFormat_Checked"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="PanelTheme" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource MenuTheme}" FontWeight="SemiBold"/>
+                        <StackPanel Margin="0,8,0,0">
+                            <RadioButton x:Name="RbThemeLight" Content="{DynamicResource ThemeLight}" Checked="RbTheme_Checked"/>
+                            <RadioButton x:Name="RbThemeDark" Content="{DynamicResource ThemeDark}" Margin="0,6,0,0" Checked="RbTheme_Checked"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="PanelLanguage" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource MenuLanguage}" FontWeight="SemiBold"/>
+                        <StackPanel Margin="0,8,0,0">
+                            <RadioButton x:Name="RbLanguageEn" Content="{DynamicResource LangEnglish}" Checked="RbLanguage_Checked"/>
+                            <RadioButton x:Name="RbLanguageJa" Content="{DynamicResource LangJapanese}" Margin="0,6,0,0" Checked="RbLanguage_Checked"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="PanelAnalysis" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource SettingsGraphSettingsTitle}" FontWeight="SemiBold"/>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="220"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource SettingsPiePalette}" VerticalAlignment="Center" Margin="0,0,8,6"/>
+                            <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="CmbPiePalette"
+                                          Grid.Column="0"
+                                          MinHeight="28"
+                                          MaxDropDownHeight="260"
+                                          DisplayMemberPath="Name"
+                                          SelectedValuePath="Id"
+                                          SelectionChanged="PiePalette_SelectionChanged"/>
+                                <Button Grid.Column="1"
+                                        Content="{DynamicResource SettingsPaletteAdd}"
+                                        Margin="8,0,0,0"
+                                        MinWidth="64"
+                                        Click="BtnAddPiePalette_Click"/>
+                                <Button Grid.Column="2"
+                                        Content="{DynamicResource SettingsPaletteClone}"
+                                        Margin="8,0,0,0"
+                                        MinWidth="64"
+                                        Click="BtnClonePiePalette_Click"/>
+                                <Button Grid.Column="3"
+                                        Content="{DynamicResource SettingsPaletteDelete}"
+                                        Margin="8,0,0,0"
+                                        MinWidth="64"
+                                        Click="BtnDeletePiePalette_Click"/>
+                            </Grid>
+                            <ItemsControl Grid.Row="1"
+                                          Grid.Column="1"
+                                          Margin="0,0,0,6"
+                                          ItemsSource="{Binding PiePaletteSlots, RelativeSource={RelativeSource AncestorType=Window}}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,6,4">
+                                            <primitives:ToggleButton x:Name="PieSlotToggle"
+                                                                     MinHeight="18"
+                                                                     MinWidth="18"
+                                                                     Width="18"
+                                                                     Height="18"
+                                                                     Padding="0"
+                                                                     IsChecked="{Binding IsPopupOpen, Mode=TwoWay}"
+                                                                     BorderBrush="{DynamicResource BorderBrush}"
+                                                                     BorderThickness="1"
+                                                                     Background="{Binding Brush}">
+                                                <TextBlock Text=""
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </primitives:ToggleButton>
+                                            <Popup IsOpen="{Binding IsPopupOpen, Mode=TwoWay}"
+                                                   Placement="Bottom"
+                                                   PlacementTarget="{Binding ElementName=PieSlotToggle}"
+                                                   StaysOpen="False"
+                                                   AllowsTransparency="True">
+                                                <Border Background="{DynamicResource PanelBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource PanelBorderBrush}"
+                                                        BorderThickness="1"
+                                                        Padding="8">
+                                                    <StackPanel>
+                                                        <ItemsControl ItemsSource="{Binding GraphColorChoices, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel />
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate DataType="{x:Type local:ColorChoice}">
+                                                                    <Button Margin="0,0,6,6"
+                                                                            Padding="0"
+                                                                            Background="Transparent"
+                                                                            BorderThickness="0"
+                                                                            Tag="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                                            Click="PaletteSlotChoice_Click">
+                                                                        <Border Width="20"
+                                                                                Height="20"
+                                                                                CornerRadius="10"
+                                                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                                                BorderThickness="1"
+                                                                                Background="{Binding Brush}"/>
+                                                                    </Button>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                        <Button Content="{DynamicResource SettingsCustomColor}"
+                                                                HorizontalAlignment="Left"
+                                                                MinWidth="92"
+                                                                Tag="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                                Click="PaletteSlotCustomColor_Click"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Popup>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource SettingsBarPalette}" VerticalAlignment="Center" Margin="0,0,8,6"/>
+                            <Grid Grid.Row="2" Grid.Column="1" Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="CmbBarPalette"
+                                          Grid.Column="0"
+                                          MinHeight="28"
+                                          MaxDropDownHeight="260"
+                                          DisplayMemberPath="Name"
+                                          SelectedValuePath="Id"
+                                          SelectionChanged="BarPalette_SelectionChanged"/>
+                                <Button Grid.Column="1"
+                                        Content="{DynamicResource SettingsPaletteAdd}"
+                                        Margin="8,0,0,0"
+                                        MinWidth="64"
+                                        Click="BtnAddBarPalette_Click"/>
+                                <Button Grid.Column="2"
+                                        Content="{DynamicResource SettingsPaletteClone}"
+                                        Margin="8,0,0,0"
+                                        MinWidth="64"
+                                        Click="BtnCloneBarPalette_Click"/>
+                                <Button Grid.Column="3"
+                                        Content="{DynamicResource SettingsPaletteDelete}"
+                                        Margin="8,0,0,0"
+                                        MinWidth="64"
+                                        Click="BtnDeleteBarPalette_Click"/>
+                            </Grid>
+                            <ItemsControl Grid.Row="3"
+                                          Grid.Column="1"
+                                          Margin="0,0,0,6"
+                                          ItemsSource="{Binding BarPaletteSlots, RelativeSource={RelativeSource AncestorType=Window}}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,6,4">
+                                            <primitives:ToggleButton x:Name="BarSlotToggle"
+                                                                     MinHeight="18"
+                                                                     MinWidth="18"
+                                                                     Width="18"
+                                                                     Height="18"
+                                                                     Padding="0"
+                                                                     IsChecked="{Binding IsPopupOpen, Mode=TwoWay}"
+                                                                     BorderBrush="{DynamicResource BorderBrush}"
+                                                                     BorderThickness="1"
+                                                                     Background="{Binding Brush}">
+                                                <TextBlock Text=""
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </primitives:ToggleButton>
+                                            <Popup IsOpen="{Binding IsPopupOpen, Mode=TwoWay}"
+                                                   Placement="Bottom"
+                                                   PlacementTarget="{Binding ElementName=BarSlotToggle}"
+                                                   StaysOpen="False"
+                                                   AllowsTransparency="True">
+                                                <Border Background="{DynamicResource PanelBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource PanelBorderBrush}"
+                                                        BorderThickness="1"
+                                                        Padding="8">
+                                                    <StackPanel>
+                                                        <ItemsControl ItemsSource="{Binding GraphColorChoices, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel />
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate DataType="{x:Type local:ColorChoice}">
+                                                                    <Button Margin="0,0,6,6"
+                                                                            Padding="0"
+                                                                            Background="Transparent"
+                                                                            BorderThickness="0"
+                                                                            Tag="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                                            Click="PaletteSlotChoice_Click">
+                                                                        <Border Width="20"
+                                                                                Height="20"
+                                                                                CornerRadius="10"
+                                                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                                                BorderThickness="1"
+                                                                                Background="{Binding Brush}"/>
+                                                                    </Button>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                        <Button Content="{DynamicResource SettingsCustomColor}"
+                                                                HorizontalAlignment="Left"
+                                                                MinWidth="92"
+                                                                Tag="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                                Click="PaletteSlotCustomColor_Click"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Popup>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource SettingsHourlyLabelColor}" VerticalAlignment="Center" Margin="0,0,8,6"/>
+                            <Grid Grid.Row="4" Grid.Column="1" Margin="0,0,0,6">
+                                <primitives:ToggleButton x:Name="TglHourLabelColorPicker"
+                                        MinHeight="28"
+                                        HorizontalAlignment="Left"
+                                        Padding="6,2"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        Background="{DynamicResource InputBackgroundBrush}">
+                                    <Border Width="16"
+                                            Height="16"
+                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderThickness="1"
+                                            Background="{Binding BarLabelPreviewBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                </primitives:ToggleButton>
+                                <Popup x:Name="PopupHourLabelColor"
+                                       PlacementTarget="{Binding ElementName=TglHourLabelColorPicker}"
+                                       IsOpen="{Binding IsChecked, ElementName=TglHourLabelColorPicker, Mode=TwoWay}"
+                                       Placement="Bottom"
+                                       StaysOpen="False"
+                                       AllowsTransparency="True">
+                                    <Border Background="{DynamicResource PanelBackgroundBrush}"
+                                            BorderBrush="{DynamicResource PanelBorderBrush}"
+                                            BorderThickness="1"
+                                            Padding="8">
+                                        <StackPanel>
+                                            <ItemsControl ItemsSource="{Binding HourLabelColorChoices, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type local:ColorChoice}">
+                                                        <Button Tag="{Binding Key}"
+                                                                Click="HourLabelColorSwatch_Click"
+                                                                Margin="0,0,6,6"
+                                                                Padding="0"
+                                                                Background="Transparent"
+                                                                BorderThickness="0">
+                                                            <Border Width="20"
+                                                                    Height="20"
+                                                                    CornerRadius="10"
+                                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                                    BorderThickness="1"
+                                                                    Background="{Binding Brush}">
+                                                                <Border.Style>
+                                                                    <Style TargetType="Border">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                                <Setter Property="BorderBrush" Value="{DynamicResource GridSelectionBackgroundBrush}"/>
+                                                                                <Setter Property="BorderThickness" Value="2"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Border.Style>
+                                                            </Border>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <Button Content="{DynamicResource SettingsCustomColor}"
+                                                    HorizontalAlignment="Left"
+                                                    MinWidth="92"
+                                                    Click="HourLabelCustomColor_Click"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+
+                            <Border Grid.Row="5"
+                                    Grid.Column="1"
+                                    Margin="0,8,0,0"
+                                    Height="16"
+                                    HorizontalAlignment="Stretch"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1"
+                                    Background="{Binding BarNormalPreviewBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+
+                            <StackPanel Grid.Row="6" Grid.Column="1" Margin="0,8,0,0">
+                                <TextBlock x:Name="TxtGraphConfigSaveState"
+                                           Foreground="{DynamicResource ForegroundBrush}"/>
+                                <TextBlock x:Name="TxtGraphConfigPath"
+                                           Foreground="{DynamicResource BorderBrush}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button x:Name="BtnClose"
+                    Content="{DynamicResource BtnClose}"
+                    MinWidth="90"
+                    Click="BtnClose_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

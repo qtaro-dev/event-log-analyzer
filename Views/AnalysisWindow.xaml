@@ -1,0 +1,214 @@
+<Window x:Class="LogAnalyzer.Views.AnalysisWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        Title="{DynamicResource Analysis.WindowTitle}"
+        Width="1100"
+        Height="760"
+        MinWidth="980"
+        MinHeight="660"
+        ui:WindowHelper.UseModernWindowStyle="True">
+    <Window.Resources>
+        <Thickness x:Key="SectionMargin">0,0,0,10</Thickness>
+        <Thickness x:Key="SectionSplitLeftMargin">0,0,5,0</Thickness>
+        <Thickness x:Key="SectionSplitCenterMargin">5,0,5,0</Thickness>
+        <Thickness x:Key="SectionSplitRightMargin">5,0,0,0</Thickness>
+        <Thickness x:Key="SectionInnerPadding">8</Thickness>
+        <sys:Double x:Key="HourlyPlotLeftMargin">84</sys:Double>
+        <sys:Double x:Key="HourlyPlotRightMargin">42</sys:Double>
+        <sys:Double x:Key="HourlyPlotBottomMargin">42</sys:Double>
+        <Style TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RowHeight" Value="24"/>
+        </Style>
+        <Style TargetType="GroupBox">
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="{StaticResource SectionInnerPadding}"/>
+            <Setter Property="Margin" Value="{StaticResource SectionMargin}"/>
+            <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+        </Style>
+    </Window.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <Border Margin="12"
+                Padding="20"
+                CornerRadius="6"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource BorderBrush}"
+                Background="{DynamicResource PanelBackgroundBrush}">
+            <StackPanel>
+                <Border Padding="12"
+                        Margin="{StaticResource SectionMargin}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        BorderBrush="{DynamicResource BorderBrush}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Analysis.Title}" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,8"/>
+
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Analysis.Target}" FontWeight="SemiBold" Margin="0,0,8,4"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="TxtTarget" Margin="0,0,0,4" TextWrapping="Wrap"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Analysis.Period}" FontWeight="SemiBold" Margin="0,0,8,4"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="TxtRange" Margin="0,0,0,4" TextWrapping="Wrap"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Analysis.Filter}" FontWeight="SemiBold" Margin="0,0,8,4"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="TxtFilter" Margin="0,0,0,4" TextWrapping="Wrap"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource Analysis.HeaderPeakHour}" FontWeight="SemiBold" Margin="0,0,8,4"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="TxtPeakHourStrong" Margin="0,0,0,4" FontWeight="Bold" Foreground="{DynamicResource ForegroundBrush}" TextWrapping="Wrap"/>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource Analysis.BurstTitle}" FontWeight="SemiBold" Margin="0,0,8,0"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="TxtBurst" TextWrapping="Wrap"/>
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="{DynamicResource Analysis.LastUpdated}" FontWeight="SemiBold" Margin="0,4,8,0"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" x:Name="TxtLastUpdated" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        </Grid>
+
+                        <WrapPanel Margin="0,0,0,0">
+                            <TextBlock x:Name="TxtHeaderTotal" Margin="0,0,16,2"/>
+                            <TextBlock x:Name="TxtHeaderErrorRate" Margin="0,0,16,2"/>
+                            <TextBlock x:Name="TxtHeaderConcentration" Margin="0,0,16,2"/>
+                            <TextBlock x:Name="TxtHeaderTop3Share" Margin="0,0,16,2"/>
+                            <TextBlock x:Name="TxtTotal" Margin="0,0,12,2"/>
+                            <TextBlock x:Name="TxtCritical" Margin="0,0,12,2"/>
+                            <TextBlock x:Name="TxtError" Margin="0,0,12,2"/>
+                            <TextBlock x:Name="TxtWarning" Margin="0,0,12,2"/>
+                            <TextBlock x:Name="TxtInfo" Margin="0,0,12,2"/>
+                            <TextBlock x:Name="TxtOther" Margin="0,0,12,2"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Grid Margin="{StaticResource SectionMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <GroupBox Header="{DynamicResource Analysis.TopProviders}" Margin="{StaticResource SectionSplitLeftMargin}">
+                        <DataGrid x:Name="GridTopProviders"
+                                  Margin="8"
+                                  ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="{DynamicResource Analysis.Provider}" Width="*" Binding="{Binding Provider}"/>
+                                <DataGridTextColumn Header="{DynamicResource Analysis.Count}" Width="90" Binding="{Binding Count}"/>
+                                <DataGridTextColumn Header="{DynamicResource Analysis.Share}" Width="90" Binding="{Binding ShareDisplay}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+
+                    <GroupBox Grid.Column="1" Header="{DynamicResource Analysis.TopEventIds}" Margin="{StaticResource SectionSplitRightMargin}">
+                        <DataGrid x:Name="GridTopEventIds"
+                                  Margin="8"
+                                  ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="{DynamicResource Analysis.EventId}" Width="*" Binding="{Binding EventId}"/>
+                                <DataGridTextColumn Header="{DynamicResource Analysis.Count}" Width="90" Binding="{Binding Count}"/>
+                                <DataGridTextColumn Header="{DynamicResource Analysis.Share}" Width="90" Binding="{Binding ShareDisplay}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                </Grid>
+
+                <Grid Margin="{StaticResource SectionMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35*"/>
+                        <ColumnDefinition Width="25*"/>
+                        <ColumnDefinition Width="40*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <GroupBox Grid.Column="0" Header="{DynamicResource Analysis.PieTitle}" Margin="{StaticResource SectionSplitLeftMargin}">
+                        <Grid Margin="{StaticResource SectionInnerPadding}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <oxy:PlotView x:Name="ProviderPiePlot"
+                                          Grid.Column="0"
+                                          Margin="0,0,6,0"
+                                          IsHitTestVisible="False"
+                                          Width="240"
+                                          Height="240"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Background="Transparent"/>
+
+                            <ItemsControl x:Name="ProviderLegendItems" Grid.Column="1">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                            <Ellipse Width="13" Height="13" Fill="{Binding Color}" Margin="0,2,8,0"/>
+                                            <TextBlock Text="{Binding Label}" TextWrapping="Wrap" Width="220"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </GroupBox>
+
+                    <GroupBox Grid.Column="1" Header="{DynamicResource Analysis.InsightTitle}" Margin="{StaticResource SectionSplitCenterMargin}" MaxWidth="360">
+                        <StackPanel Margin="{StaticResource SectionInnerPadding}">
+                            <TextBlock x:Name="TxtInsightPeak" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="TxtInsightProviderConcentration" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="TxtInsightEventIdConcentration" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="TxtInsightDiversity" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="TxtInsightBurst" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Grid.Column="2" Header="{DynamicResource Analysis.ChartHourly}" Margin="{StaticResource SectionSplitRightMargin}" MinHeight="300">
+                        <Grid Margin="{StaticResource SectionInnerPadding}">
+                            <oxy:PlotView x:Name="HourlyBarPlot"/>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+
+                <GroupBox Header="{DynamicResource TabSummary}" FontSize="15" FontWeight="Bold" Margin="{StaticResource SectionMargin}" HorizontalAlignment="Stretch">
+                    <TextBlock x:Name="TxtAnalysisSummary"
+                               Margin="10"
+                               FontSize="14"
+                               LineHeight="20"
+                               TextWrapping="Wrap"/>
+                </GroupBox>
+
+                <GroupBox Header="{DynamicResource Analysis.AggregationHeader}" Margin="{StaticResource SectionMargin}" HorizontalAlignment="Stretch">
+                    <DataGrid x:Name="GridAnalysisAggregation"
+                              Margin="10"
+                              HeadersVisibility="Column"
+                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{DynamicResource Analysis.AggregationMetric}" Width="2*" Binding="{Binding Metric}"/>
+                            <DataGridTextColumn Header="{DynamicResource Analysis.AggregationValue}" Width="*" Binding="{Binding Value}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </GroupBox>
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
+</Window>

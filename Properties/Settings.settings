@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings"
+              CurrentProfile="(Default)"
+              GeneratedClassNamespace="LogAnalyzer.Properties"
+              GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="AgreeToAdminLogAccess" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="UiLanguage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">en</Value>
+    </Setting>
+    <Setting Name="OutputDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="WriteJsonl" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="WriteCsv" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="WriteSummary" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="DedupMessage" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="IncludeXml" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ShowOnlyNew" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="UiTheme" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Light</Value>
+    </Setting>
+    <Setting Name="TimeFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">24h</Value>
+    </Setting>
+    <Setting Name="LastTopN" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">500</Value>
+    </Setting>
+    <Setting Name="LastLogsSystem" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="LastLogsApplication" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="LastLevelCritical" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="LastLevelError" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="LastLevelWarning" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="LastLevelInformation" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="LastStartTime" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)">0001-01-01T00:00:00</Value>
+    </Setting>
+    <Setting Name="LastEndTime" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)">0001-01-01T00:00:00</Value>
+    </Setting>
+    <Setting Name="LastUseTimeRange" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PiePaletteId" Type="System.String" Scope="User">
+      <Value Profile="(Default)">PaletteA</Value>
+    </Setting>
+    <Setting Name="HourBarFillKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GridHeaderBackgroundBrush</Value>
+    </Setting>
+    <Setting Name="HourPeakFillKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GridSelectionBackgroundBrush</Value>
+    </Setting>
+    <Setting Name="HourBarLabelTextKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">InputForegroundBrush</Value>
+    </Setting>
+    <Setting Name="PiePaletteAColorKeys" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor1|AnalysisProviderColor2|AnalysisProviderColor3|AnalysisProviderColor4|AnalysisProviderColor5|AnalysisProviderColor6|AnalysisProviderColor7|AnalysisProviderColor8|AnalysisProviderColor1|AnalysisProviderColor2</Value>
+    </Setting>
+    <Setting Name="PiePaletteBColorKeys" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor8|AnalysisProviderColor7|AnalysisProviderColor6|AnalysisProviderColor5|AnalysisProviderColor4|AnalysisProviderColor3|AnalysisProviderColor2|AnalysisProviderColor1|AnalysisProviderColor8|AnalysisProviderColor7</Value>
+    </Setting>
+    <Setting Name="BarPaletteSelectedId" Type="System.String" Scope="User">
+      <Value Profile="(Default)">PaletteA</Value>
+    </Setting>
+    <Setting Name="BarPaletteAColorKeys" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GridHeaderBackgroundBrush|GridSelectionBackgroundBrush|PanelBackgroundBrush|BorderBrush</Value>
+    </Setting>
+    <Setting Name="BarPaletteBColorKeys" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GridSelectionBackgroundBrush|GridHeaderBackgroundBrush|InputBackgroundBrush|BorderBrush</Value>
+    </Setting>
+    <Setting Name="PiePaletteSelectedId" Type="System.String" Scope="User">
+      <Value Profile="(Default)">A</Value>
+    </Setting>
+    <Setting Name="PiePaletteA_ColorKey1" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor1</Value>
+    </Setting>
+    <Setting Name="PiePaletteA_ColorKey2" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor2</Value>
+    </Setting>
+    <Setting Name="PiePaletteA_ColorKey3" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor3</Value>
+    </Setting>
+    <Setting Name="PiePaletteA_ColorKey4" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor4</Value>
+    </Setting>
+    <Setting Name="PiePaletteA_ColorKey5" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor5</Value>
+    </Setting>
+    <Setting Name="PiePaletteA_ColorKey6" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor6</Value>
+    </Setting>
+    <Setting Name="PiePaletteA_ColorKey7" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor7</Value>
+    </Setting>
+    <Setting Name="PiePaletteA_ColorKey8" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor8</Value>
+    </Setting>
+    <Setting Name="PiePaletteA_ColorKey9" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor1</Value>
+    </Setting>
+    <Setting Name="PiePaletteA_ColorKey10" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor2</Value>
+    </Setting>
+    <Setting Name="PiePaletteB_ColorKey1" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor8</Value>
+    </Setting>
+    <Setting Name="PiePaletteB_ColorKey2" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor7</Value>
+    </Setting>
+    <Setting Name="PiePaletteB_ColorKey3" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor6</Value>
+    </Setting>
+    <Setting Name="PiePaletteB_ColorKey4" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor5</Value>
+    </Setting>
+    <Setting Name="PiePaletteB_ColorKey5" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor4</Value>
+    </Setting>
+    <Setting Name="PiePaletteB_ColorKey6" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor3</Value>
+    </Setting>
+    <Setting Name="PiePaletteB_ColorKey7" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor2</Value>
+    </Setting>
+    <Setting Name="PiePaletteB_ColorKey8" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor1</Value>
+    </Setting>
+    <Setting Name="PiePaletteB_ColorKey9" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor8</Value>
+    </Setting>
+    <Setting Name="PiePaletteB_ColorKey10" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AnalysisProviderColor7</Value>
+    </Setting>
+    <Setting Name="BarPaletteA_ColorKey1" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GridHeaderBackgroundBrush</Value>
+    </Setting>
+    <Setting Name="BarPaletteA_ColorKey2" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GridSelectionBackgroundBrush</Value>
+    </Setting>
+    <Setting Name="BarPaletteA_ColorKey3" Type="System.String" Scope="User">
+      <Value Profile="(Default)">PanelBackgroundBrush</Value>
+    </Setting>
+    <Setting Name="BarPaletteA_ColorKey4" Type="System.String" Scope="User">
+      <Value Profile="(Default)">BorderBrush</Value>
+    </Setting>
+    <Setting Name="BarPaletteB_ColorKey1" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GridSelectionBackgroundBrush</Value>
+    </Setting>
+    <Setting Name="BarPaletteB_ColorKey2" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GridHeaderBackgroundBrush</Value>
+    </Setting>
+    <Setting Name="BarPaletteB_ColorKey3" Type="System.String" Scope="User">
+      <Value Profile="(Default)">InputBackgroundBrush</Value>
+    </Setting>
+    <Setting Name="BarPaletteB_ColorKey4" Type="System.String" Scope="User">
+      <Value Profile="(Default)">BorderBrush</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

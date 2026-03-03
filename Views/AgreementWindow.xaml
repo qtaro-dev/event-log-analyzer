@@ -1,0 +1,49 @@
+<Window x:Class="LogAnalyzer.Views.AgreementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="利用許諾（管理者権限とログアクセス）"
+        Width="600"
+        Height="400"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <TextBlock TextWrapping="Wrap">
+本アプリは Windows イベントログを収集・表示します。
+
+管理者権限での実行が必要です。
+取得するログには PC 名、アプリ名、ユーザー名などが含まれる可能性があります。
+
+内容を理解し、利用に同意する場合のみチェックを入れてください。
+同意しない場合、アプリケーションは終了します。
+            </TextBlock>
+        </ScrollViewer>
+
+        <CheckBox Grid.Row="1"
+                  x:Name="ChkAgree"
+                  Margin="0,12,0,12"
+                  Content="上記内容に同意する"
+                  Checked="ChkAgree_CheckedChanged"
+                  Unchecked="ChkAgree_CheckedChanged"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnAccept"
+                    Content="同意して続行"
+                    Width="120"
+                    Margin="0,0,8,0"
+                    IsEnabled="False"
+                    Click="BtnAccept_Click"/>
+            <Button x:Name="BtnExit"
+                    Content="終了"
+                    Width="90"
+                    Click="BtnExit_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
