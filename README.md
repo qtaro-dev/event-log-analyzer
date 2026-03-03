@@ -1,71 +1,66 @@
 # Event Log Analyzer
 
-Windows のイベントログを抽出・集計・可視化するためのデスクトップツールです。
+A desktop application that extracts, aggregates, and analyzes Windows Event Logs to support troubleshooting.
 
-System / Application / Security ログを対象に、期間・レベル別にフィルタリングし、
-トラブルシュートを支援することを目的として開発しました。
-
----
-
-## 概要
-
-本ツールは、Windows PC で発生しているエラーや警告の傾向を把握し、
-原因分析を効率化するためのログ解析ツールです。
-
-家庭内PCのトラブル原因特定を目的として開発しましたが、
-企業環境におけるログ分析用途も想定しています。
+It primarily targets **System / Application / Security** logs and allows filtering by time range and severity level to assist in root cause analysis.
 
 ---
 
-## 主な機能
+## Overview
 
-* System / Application / Security ログ取得
-* 期間指定フィルタリング
-* レベル別集計（Error / Warning / Information）
-* Provider別・EventID別集計
-* 時系列表示
-* CSV / Markdown 出力
-* グラフによる可視化
+This tool is designed to identify trends in errors and warnings occurring on Windows PCs and to streamline root cause investigation.
+
+Originally developed to diagnose issues on personal machines, it is also intended for use in enterprise environments where log analysis and monitoring are required.
 
 ---
 
-## 使用技術
+## Key Features
+
+* Retrieve System / Application / Security logs
+* Time range filtering
+* Severity-based aggregation (Error / Warning / Information)
+* Provider-based and Event ID-based aggregation
+* Chronological (time-series) display
+* CSV / Markdown export
+* Graph-based visualization
+
+---
+
+## Technology Stack
 
 * C#
 * .NET
 * Windows Event Log API
-* WPF（または WinForms ※使用UIに応じて修正）
+* WPF (or WinForms depending on the UI implementation)
 
 ---
 
-## 想定ユースケース
+## Intended Use Cases
 
-* PCトラブル発生時の原因特定
-* 定期的なエラー傾向の確認
-* サーバ・クライアントのログ監視補助
-
----
-
-## 開発背景
-
-長年PC修理・トラブル対応を行う中で、
-Windowsイベントログを効率的に分析できるツールの必要性を感じ開発。
-
-単なるログ閲覧ではなく、集計・可視化により
-「何がどのくらい発生しているか」を把握できる設計としました。
+* Root cause analysis when PC issues occur
+* Periodic review of error trends
+* Supporting log monitoring for servers and client machines
 
 ---
 
-## 今後の拡張予定
+## Development Background
 
-* リモートPCからのログ取得機能
-* 重複イベント検出
-* カスタムシグネチャ登録
-* 定期レポート出力機能
+Developed based on long-term experience in PC repair and troubleshooting, where efficient analysis of Windows Event Logs became necessary.
+
+Rather than functioning as a simple log viewer, this tool focuses on aggregation and visualization to clearly understand what events are occurring and how frequently they happen.
 
 ---
 
-## 注意
+## Future Enhancements
 
-本ツールは個人開発プロジェクトです。
-動作確認は Windows 環境で実施しています。
+* Remote log retrieval from other PCs
+* Duplicate event detection
+* Custom signature registration
+* Scheduled report generation
+
+---
+
+## Notes
+
+This is a personal development project.
+The application has been tested in Windows environments only.
